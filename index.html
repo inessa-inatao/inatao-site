@@ -611,7 +611,7 @@ function dlForm(){
     `<label><input type="radio" name="dlpay" value="receive" ${D.pay==='receive'?'checked':''}><span>При получении<small>оплатите доставку в пункте СДЭК</small></span></label>`+
     `<label><input type="radio" name="dlpay" value="now" ${D.pay==='now'?'checked':''}><span>При оформлении заказа<small>менеджер пришлёт сумму и реквизиты</small></span></label></div>`;
   }else if(D.type==='ozon'){
-    h+=`<div class="two">${inp(f[0])}${inp(f[1])}</div>${inp(f[2])}${inp(f[3])}<p class="hint">Номер телефона должен совпадать с номером в вашем приложении Ozon — по нему придёт код для получения.</p>`;
+    h+=`<div class="two">${inp(f[0])}${inp(f[1])}</div>${inp(f[2])}${inp(f[3])}<p class="hint">Номер телефона должен совпадать с номером в вашем приложении Ozon — по нему придёт код для получения.</p><p class="hint"><b style="color:var(--tq-ink)">Доставка Ozon оплачивается сразу.</b> После оформления менеджер сообщит стоимость доставки и реквизиты для оплаты.</p>`;
   }
   return h+'</div>';
 }
@@ -621,7 +621,7 @@ function dlText(){
   if(D.type==='courier'){const place=D.city==='Другое село рядом'?t(D.village):D.city;
     return `\n\nДоставка: курьер, ${place}\nАдрес: ${t(D.addr)}\nИмя: ${t(D.first)}\nТелефон: ${t(D.phone)}`}
   if(D.type==='cdek')return `\n\nДоставка: СДЭК\nПолучатель: ${t(D.last)} ${t(D.first)}\nТелефон получателя: ${t(D.phone)}\nГород, область: ${t(D.region)}\nПункт СДЭК: ${t(D.cdekPoint)}\nОплата доставки: ${D.pay==='now'?'при оформлении заказа':'при получении'}`;
-  return `\n\nДоставка: Ozon\nПолучатель: ${t(D.last)} ${t(D.first)}\nТелефон (Ozon): ${t(D.phone)}\nПункт выдачи Ozon: ${t(D.ozonPoint)}`;
+  return `\n\nДоставка: Ozon\nПолучатель: ${t(D.last)} ${t(D.first)}\nТелефон (Ozon): ${t(D.phone)}\nПункт выдачи Ozon: ${t(D.ozonPoint)}\nОплата доставки: сразу, после расчёта стоимости менеджером`;
 }
 function dlCheck(e){const m=dlMissing();if(!m.length)return true;e.preventDefault();
   document.querySelectorAll('[data-dl]').forEach(el=>el.classList.toggle('err',m.some(([k])=>k===el.dataset.dl)));
