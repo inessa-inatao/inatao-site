@@ -237,6 +237,18 @@ header.top{background:var(--deep);border-bottom:0;color:#FFFAE3;backdrop-filter:
 .btn.tq{background:var(--deep)}
 
 
+/* ===== Юридическая информация ===== */
+footer .legal{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 18px;margin:22px auto 10px;max-width:760px}
+footer .legal button{background:none;border:0;color:#FFFAE3;text-decoration:underline;text-underline-offset:3px;font-size:14px;min-height:44px;padding:0 4px}
+footer .seller{font-size:12.5px;opacity:.85;max-width:760px;margin:0 auto;padding:0 16px;line-height:1.6}
+footer .seller a{color:#FFFAE3}
+.docTxt h3{font-family:"Tenor Sans",sans-serif;font-weight:400;font-size:24px;margin:18px 0 10px;color:var(--tq-ink)}
+.docTxt h4{font-size:15px;margin:16px 0 6px;color:var(--tq-ink)}
+.docTxt p,.docTxt li{font-size:14px;line-height:1.55;margin:0 0 8px}
+.docTxt ul{padding-left:20px;margin:0 0 8px}
+.consent{font-size:12.5px;color:var(--muted);text-align:center;margin:10px 0 0}
+.consent button{background:none;border:0;padding:0;color:var(--tq-ink);text-decoration:underline;font-size:inherit;cursor:pointer}
+
 /* ===== Доставка ===== */
 .dlTypes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 12px}
 .dlTypes button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px 14px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--text);min-height:64px}
@@ -458,8 +470,14 @@ header.top{background:var(--deep);border-bottom:0;color:#FFFAE3;backdrop-filter:
 <footer><div class="in">
   <img src="assets/logo-ring.png" alt="InaTao" style="width:130px;margin:0 auto 14px">
   <p class="disp" style="font-size:22px">Сувениры с душой, технологии с умом</p>
-  <p style="opacity:.85;font-size:14px">InaTao · подарки на все случаи</p>
-  <a class="btn iv" style="margin-top:14px;text-decoration:none" href="https://wa.me/79300900404" target="_blank" rel="noopener">Написать в WhatsApp</a>
+  <p style="opacity:.85;font-size:14px">InaTao (ИнаТао) · подарки на все случаи</p>
+  <a class="btn iv" style="margin-top:14px;text-decoration:none" href="tel:+79300900404">Позвонить: +7 930 090‑04‑04</a>
+  <nav class="legal" aria-label="Информация для покупателей">
+    <button data-doc="delivery">Доставка и оплата</button>
+    <button data-doc="returns">Обмен и возврат</button>
+    <button data-doc="privacy">Политика обработки персональных данных</button>
+  </nav>
+  <p class="seller">Продавец: ИП Алиев Магомед-Амин Ахиятович · ОГРНИП 324200000017121 · ИНН 201470634500<br>Телефон: <a href="tel:+79300900404">+7 930 090‑04‑04</a></p>
 </div></footer>
 
 <nav class="tabs" aria-label="Разделы">
@@ -578,6 +596,47 @@ function totals(){
   return {items,w,all:items+w,hasGoods};
 }
 
+/* ===== Документы для покупателей ===== */
+const SELLER='ИП Алиев Магомед-Амин Ахиятович (ОГРНИП 324200000017121, ИНН 201470634500)';
+const DOCS={
+ delivery:`<h3>Доставка и оплата</h3>
+ <h4>Курьер</h4><p>По Грозному, Урус-Мартану и ближайшим сёлам. Стоимость и время доставки менеджер сообщит после оформления заказа.</p>
+ <h4>СДЭК</h4><p>До пункта выдачи СДЭК в любом городе России. Доставку можно оплатить при получении в пункте СДЭК или сразу при оформлении заказа — менеджер пришлёт сумму и реквизиты.</p>
+ <h4>Ozon</h4><p>До выбранного пункта выдачи Ozon. Доставка Ozon оплачивается сразу: после оформления менеджер сообщит её стоимость и реквизиты. Номер телефона должен совпадать с номером в приложении Ozon.</p>
+ <h4>Оплата товара</h4><p>После оформления заказа менеджер подтвердит наличие и пришлёт способ оплаты.</p>`,
+ returns:`<h3>Обмен и возврат</h3>
+ <p>Продавец: ${SELLER}.</p>
+ <h4>Товар надлежащего качества</h4>
+ <p>Вы можете отказаться от товара в любое время до его получения, а после получения — в течение 7 дней. Товар должен сохранить товарный вид, потребительские свойства, упаковку и ярлыки; нужен документ, подтверждающий покупку (чек или переписка с заказом).</p>
+ <p>Деньги за товар возвращаем в течение 10 дней со дня получения требования. Стоимость доставки товара обратно продавцу не возмещается.</p>
+ <p>Нельзя вернуть товар надлежащего качества, если он изготовлен или оформлен по вашему индивидуальному заказу (например, подарочный набор с персональной надписью).</p>
+ <h4>Товар с недостатком</h4>
+ <p>Если товар оказался с браком, свяжитесь с нами — заменим его, уменьшим цену или вернём деньги в соответствии с Законом «О защите прав потребителей».</p>
+ <h4>Как оформить возврат</h4>
+ <p>Позвоните по телефону <a href="tel:+79300900404">+7 930 090‑04‑04</a> и сообщите номер или состав заказа — менеджер расскажет, куда отправить товар.</p>`,
+ privacy:`<h3>Политика обработки персональных данных</h3>
+ <p>Редакция от 13 октября 2026 г.</p>
+ <h4>1. Оператор</h4>
+ <p>${SELLER}, телефон +7 930 090‑04‑04 (далее — Оператор). Политика действует на сайте inatao.ru.</p>
+ <h4>2. Какие данные мы обрабатываем</h4>
+ <ul><li>фамилия и имя;</li><li>номер телефона;</li><li>адрес доставки, населённый пункт, адрес пункта выдачи СДЭК или Ozon;</li><li>состав заказа и текст открытки, если вы его указали.</li></ul>
+ <h4>3. Зачем</h4>
+ <p>Только чтобы оформить, собрать и доставить ваш заказ и связаться с вами по нему. Рекламные рассылки без вашего отдельного согласия мы не отправляем.</p>
+ <h4>4. Основание</h4>
+ <p>Заключение и исполнение договора купли-продажи, стороной которого вы являетесь (п. 5 ч. 1 ст. 6 Федерального закона № 152-ФЗ «О персональных данных»).</p>
+ <h4>5. Как обрабатываются данные</h4>
+ <p>Данные, введённые в форму заказа, сохраняются в памяти вашего браузера на вашем устройстве, чтобы не вводить их повторно; вы можете удалить их, очистив данные сайта в браузере. Сайт не использует системы аналитики и рекламные метки.</p>
+ <p>Для доставки данные передаются выбранной вами службе доставки (СДЭК или Ozon) или курьеру в объёме, необходимом для доставки.</p>
+ <h4>6. Сроки</h4>
+ <p>Данные хранятся до исполнения заказа и далее в течение срока, установленного законодательством для бухгалтерских и налоговых документов, после чего уничтожаются.</p>
+ <h4>7. Ваши права</h4>
+ <p>Вы можете запросить сведения о своих данных, потребовать их уточнения или удаления, отозвать согласие, обратившись к Оператору по телефону +7 930 090‑04‑04. Ответ — в течение 10 рабочих дней.</p>
+ <h4>8. Защита</h4>
+ <p>Оператор принимает организационные и технические меры для защиты данных от неправомерного доступа, изменения и распространения.</p>`
+};
+function openDoc(k){openSheet(`<div class="docTxt">${DOCS[k]}</div>`)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-doc]');if(b){e.preventDefault();openDoc(b.dataset.doc)}});
+
 /* ===== Доставка ===== */
 const DL_TYPES=[
  {id:'courier',n:'Курьер',s:'Грозный, Урус-Мартан и ближайшие сёла'},
@@ -657,7 +716,8 @@ function renderCart(){
   <p class="h4">Доставка</p>
   ${dlForm()}
   <a class="btn tq" style="width:100%;text-decoration:none" id="checkout" target="_blank" rel="noopener" href="${waLink()}"><svg viewBox="0 0 24 24" width="20" height="20" fill="#FFFAE3"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg>Отправить заказ в WhatsApp</a>
-  <p style="font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0">Откроется чат с InaTao с готовым текстом заказа — останется нажать «Отправить».</p>`;
+  <p style="font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0">Откроется чат с InaTao с готовым текстом заказа — останется нажать «Отправить».</p>
+  <p class="consent">Оформляя заказ, вы соглашаетесь с <button data-doc="privacy">политикой обработки персональных данных</button> и <button data-doc="returns">условиями возврата</button>.</p>`;
 }
 function badges(){
   const c=S.cart.reduce((s,l)=>s+l.q,0);
@@ -737,7 +797,7 @@ function renderGift(){
     RIBS.map(r=>`<button class="opt" data-grib="${r.n}" aria-pressed="${G.rib===r.n}"><span class="dot" style="background:${r.c}"></span><b style="font-family:Manrope,sans-serif;font-size:15px;font-weight:600">${r.n}</b></button>`).join('')+'</div>'+
     `<button class="opt row" data-gcard aria-pressed="${G.card}" style="width:100%"><span class="md" style="width:52px;height:52px"><svg viewBox="0 0 64 64" style="width:30px;height:30px">${IC.box}</svg></span><span style="flex:1;display:flex;flex-direction:column;gap:3px"><b style="font-family:Manrope,sans-serif;font-size:17px;font-weight:700">Добавить открытку</b><small>Подпишем от руки вашим текстом</small></span><span class="pr" style="margin-right:36px">${rub(CARD_P)}</span>${TICK}</button>`+
     (G.card?`<p class="h4">Текст открытки</p><textarea id="gNote" maxlength="200" placeholder="Например: Дорогой маме — с любовью!">${esc(G.note)}</textarea>`:'')}
-  else {h=`<div class="gDone"><span class="md"><svg viewBox="0 0 64 64">${IC.box}</svg></span><h2>Подарок собран!</h2><p>Выберите доставку и отправьте заказ нам в WhatsApp — сообщение уже заполнено. Мы уточним наличие и время готовности.</p><div style="width:100%;max-width:560px;text-align:left"><p class="h4">Доставка</p>${dlForm()}</div><a class="btn tq" style="text-decoration:none" target="_blank" rel="noopener" id="gSend" href="${gWa()}">Отправить заказ в WhatsApp</a><button class="linkBtn" data-greset>Собрать ещё один подарок</button></div>`}
+  else {h=`<div class="gDone"><span class="md"><svg viewBox="0 0 64 64">${IC.box}</svg></span><h2>Подарок собран!</h2><p>Выберите доставку и отправьте заказ нам в WhatsApp — сообщение уже заполнено. Мы уточним наличие и время готовности.</p><div style="width:100%;max-width:560px;text-align:left"><p class="h4">Доставка</p>${dlForm()}</div><a class="btn tq" style="text-decoration:none" target="_blank" rel="noopener" id="gSend" href="${gWa()}">Отправить заказ в WhatsApp</a><p class="consent">Оформляя заказ, вы соглашаетесь с <button data-doc="privacy">политикой обработки персональных данных</button> и <button data-doc="returns">условиями возврата</button>.</p><button class="linkBtn" data-greset>Собрать ещё один подарок</button></div>`}
   if(G.step<6)h+=`<div class="gNav">${G.step>1?'<button class="btn back" data-gback>Назад</button>':'<span></span>'}<button class="btn tq" data-gnext ${gValid(G.step)?'':'disabled'}>${G.step===5?'Готово':'Далее'}</button></div>`;
   else h+=`<div class="gNav"><button class="btn back" data-gback>Назад</button><span></span></div>`;
   $('#gMain').innerHTML=h;
