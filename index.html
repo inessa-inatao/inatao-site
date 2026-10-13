@@ -236,6 +236,27 @@ header.top{background:var(--deep);border-bottom:0;color:#FFFAE3;backdrop-filter:
 .cert{background:var(--deep)}
 .btn.tq{background:var(--deep)}
 
+
+/* ===== Доставка ===== */
+.dlTypes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 12px}
+.dlTypes button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px 14px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--text);min-height:64px}
+.dlTypes button b{font-size:15px;font-weight:700}
+.dlTypes button small{font-size:12px;color:var(--muted);line-height:1.3}
+.dlTypes button[aria-pressed="true"]{border-color:var(--deep);background:color-mix(in srgb,var(--tq) 12%,var(--surface))}
+.dlBox{display:grid;gap:10px;margin:4px 0 8px}
+.dlBox label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--tq-ink)}
+.dlBox input,.dlBox select{height:46px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--text);font:inherit;font-weight:400;font-size:15px;padding:0 14px}
+.dlBox .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dlBox .err{border-color:#C2572B;box-shadow:0 0 0 1px #C2572B inset}
+.dlBox .hint{font-size:13px;color:var(--muted);margin:0}
+.payOpt{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.payOpt label{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:14px;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--surface);cursor:pointer}
+.payOpt label:has(input:checked){border-color:var(--deep);box-shadow:0 0 0 1px var(--deep) inset}
+.payOpt input{accent-color:var(--deep);margin-top:3px;height:auto}
+.payOpt small{display:block;color:var(--muted);font-size:12px}
+  .toast{white-space:normal;max-width:calc(100% - 32px);text-align:center;border-radius:18px}
+@media (max-width:760px){.dlTypes{grid-template-columns:1fr}.dlBox .two,.payOpt{grid-template-columns:1fr}}
+
 /* ===== Конструктор «Подобрать подарок» ===== */
 .gHead{position:relative;overflow:hidden;background:var(--deep);color:#FFFAE3}
 .gHead .pat{position:absolute;inset:0;opacity:.12}
@@ -556,6 +577,63 @@ function totals(){
   const w=hasGoods?WRAP.find(w=>w.id===S.wrap).p:0;
   return {items,w,all:items+w,hasGoods};
 }
+
+/* ===== Доставка ===== */
+const DL_TYPES=[
+ {id:'courier',n:'Курьер',s:'Грозный, Урус-Мартан и ближайшие сёла'},
+ {id:'cdek',n:'СДЭК',s:'до пункта выдачи СДЭК по всей России'},
+ {id:'ozon',n:'Ozon',s:'до пункта выдачи Ozon'}
+];
+const DL_CITIES=['Грозный','Урус-Мартан','Другое село рядом'];
+const D={type:'',city:'Грозный',village:'',addr:'',last:'',first:'',phone:'',region:'',cdekPoint:'',ozonPoint:'',pay:'receive'};
+try{const d=JSON.parse(localStorage.getItem('inatao_dl')||'null');if(d)Object.assign(D,d)}catch(e){}
+if(!D.first&&S.name)D.first=S.name;if(!D.phone&&S.phone)D.phone=S.phone;
+const saveD=()=>{try{localStorage.setItem('inatao_dl',JSON.stringify(D))}catch(e){}};
+function dlFields(){
+  if(D.type==='courier')return [['first','Имя','given-name'],['phone','Телефон','tel'],['addr','Улица, дом, квартира','street-address']].concat(D.city==='Другое село рядом'?[['village','Название села','address-level2']]:[]);
+  if(D.type==='cdek')return [['last','Фамилия','family-name'],['first','Имя','given-name'],['phone','Телефон получателя','tel'],['region','Город и область','address-level2'],['cdekPoint','Адрес пункта СДЭК','off']];
+  if(D.type==='ozon')return [['last','Фамилия','family-name'],['first','Имя','given-name'],['phone','Телефон, привязанный к приложению Ozon','tel'],['ozonPoint','Адрес пункта выдачи Ozon','off']];
+  return [];
+}
+const dlMissing=()=>D.type?dlFields().filter(([k])=>!String(D[k]||'').trim()):[['type','способ доставки']];
+const inp=([k,l,ac])=>`<label>${l}<input data-dl="${k}" value="${esc(D[k]||'')}" autocomplete="${ac}" ${ac==='tel'?'type="tel" inputmode="tel"':''}></label>`;
+function dlForm(){
+  let h=`<div class="dlTypes" role="group" aria-label="Способ доставки">`+DL_TYPES.map(t=>`<button type="button" data-dlt="${t.id}" aria-pressed="${D.type===t.id}"><b>${t.n}</b><small>${t.s}</small></button>`).join('')+'</div>';
+  if(!D.type)return h+'<p class="hint" style="font-size:13px;color:var(--muted);margin:0">Выберите, как доставить заказ.</p>';
+  const f=dlFields();h+='<div class="dlBox">';
+  if(D.type==='courier'){
+    h+=`<label>Населённый пункт<select data-dl="city">${DL_CITIES.map(c=>`<option ${D.city===c?'selected':''}>${c}</option>`).join('')}</select></label>`;
+    if(D.city==='Другое село рядом')h+=inp(f.find(x=>x[0]==='village'));
+    h+=`<div class="two">${inp(f[0])}${inp(f[1])}</div>${inp(f[2])}<p class="hint">Стоимость и время курьерской доставки уточнит менеджер.</p>`;
+  }else if(D.type==='cdek'){
+    h+=`<div class="two">${inp(f[0])}${inp(f[1])}</div>${inp(f[2])}${inp(f[3])}${inp(f[4])}`+
+    `<label style="margin-top:4px">Оплата доставки</label><div class="payOpt">`+
+    `<label><input type="radio" name="dlpay" value="receive" ${D.pay==='receive'?'checked':''}><span>При получении<small>оплатите доставку в пункте СДЭК</small></span></label>`+
+    `<label><input type="radio" name="dlpay" value="now" ${D.pay==='now'?'checked':''}><span>При оформлении заказа<small>менеджер пришлёт сумму и реквизиты</small></span></label></div>`;
+  }else if(D.type==='ozon'){
+    h+=`<div class="two">${inp(f[0])}${inp(f[1])}</div>${inp(f[2])}${inp(f[3])}<p class="hint">Номер телефона должен совпадать с номером в вашем приложении Ozon — по нему придёт код для получения.</p>`;
+  }
+  return h+'</div>';
+}
+function dlText(){
+  if(!D.type)return '';
+  const t=x=>String(x||'').trim();
+  if(D.type==='courier'){const place=D.city==='Другое село рядом'?t(D.village):D.city;
+    return `\n\nДоставка: курьер, ${place}\nАдрес: ${t(D.addr)}\nИмя: ${t(D.first)}\nТелефон: ${t(D.phone)}`}
+  if(D.type==='cdek')return `\n\nДоставка: СДЭК\nПолучатель: ${t(D.last)} ${t(D.first)}\nТелефон получателя: ${t(D.phone)}\nГород, область: ${t(D.region)}\nПункт СДЭК: ${t(D.cdekPoint)}\nОплата доставки: ${D.pay==='now'?'при оформлении заказа':'при получении'}`;
+  return `\n\nДоставка: Ozon\nПолучатель: ${t(D.last)} ${t(D.first)}\nТелефон (Ozon): ${t(D.phone)}\nПункт выдачи Ozon: ${t(D.ozonPoint)}`;
+}
+function dlCheck(e){const m=dlMissing();if(!m.length)return true;e.preventDefault();
+  document.querySelectorAll('[data-dl]').forEach(el=>el.classList.toggle('err',m.some(([k])=>k===el.dataset.dl)));
+  const first=document.querySelector('.dlBox .err')||document.querySelector('.dlTypes');if(first)first.scrollIntoView({block:'center',behavior:'smooth'});
+  toast(m[0][0]==='type'?'Выберите способ доставки':'Заполните: '+m.map(x=>x[1].toLowerCase()).join(', '));return false}
+const dlRefresh=()=>{const c=document.getElementById('checkout');if(c)c.href=waLink();const g=document.getElementById('gSend');if(g&&typeof gWa==='function')g.href=gWa()};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-dlt]');if(!b)return;D.type=b.dataset.dlt;saveD();render()});
+document.addEventListener('change',e=>{const el=e.target;
+  if(el.name==='dlpay'){D.pay=el.value;saveD();dlRefresh()}
+  else if(el.dataset&&el.dataset.dl==='city'){D.city=el.value;saveD();render()}});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.dl;if(!k||k==='city')return;D[k]=e.target.value;e.target.classList.remove('err');saveD();dlRefresh()});
+
 function waText(){
   const t=totals();
   let m='Здравствуйте! Хочу оформить заказ в InaTao:\n\n';
@@ -563,9 +641,7 @@ function waText(){
   if(t.hasGoods){const w=WRAP.find(w=>w.id===S.wrap);m+=`\nУпаковка: ${w.n}${w.p?' ('+rub(w.p)+')':''}`}
   if(S.note.trim())m+=`\nТекст открытки: «${S.note.trim()}»`;
   m+=`\n\nИтого: ${rub(t.all)}`;
-  if(S.name.trim())m+=`\nИмя: ${S.name.trim()}`;
-  if(S.phone.trim())m+=`\nТелефон: ${S.phone.trim()}`;
-  if(S.addr.trim())m+=`\nДоставка: ${S.addr.trim()}`;
+  m+=dlText();
   return m;
 }
 const waLink=()=>`https://wa.me/${WA}?text=${encodeURIComponent(waText())}`;
@@ -578,8 +654,8 @@ function renderCart(){
   (t.hasGoods?`<p class="h4">Упаковка</p><div class="wrapOpt">${WRAP.map(w=>`<label><input type="radio" name="wrap" value="${w.id}" ${S.wrap===w.id?'checked':''}><span>${w.n}<small>${w.s} · ${w.p?rub(w.p):'бесплатно'}</small></span></label>`).join('')}</div>`:'')+
   `<p class="h4">Открытка к подарку</p><textarea id="note" placeholder="Например: «С днём рождения! Пусть каждый день будет с душой»">${esc(S.note)}</textarea>
   <div class="tot"><span>Итого${t.w?` <small style="color:var(--muted)">(упаковка ${rub(t.w)})</small>`:''}</span><span class="price">${rub(t.all)}</span></div>
-  <p class="h4">Ваши данные</p>
-  <div class="fields"><input id="cName" placeholder="Имя" value="${esc(S.name)}" autocomplete="name"><input id="cPhone" type="tel" placeholder="Телефон" value="${esc(S.phone)}" autocomplete="tel"><input id="cAddr" placeholder="Адрес доставки или «самовывоз»" value="${esc(S.addr)}" autocomplete="street-address"></div>
+  <p class="h4">Доставка</p>
+  ${dlForm()}
   <a class="btn tq" style="width:100%;text-decoration:none" id="checkout" target="_blank" rel="noopener" href="${waLink()}"><svg viewBox="0 0 24 24" width="20" height="20" fill="#FFFAE3"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg>Отправить заказ в WhatsApp</a>
   <p style="font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0">Откроется чат с InaTao с готовым текстом заказа — останется нажать «Отправить».</p>`;
 }
@@ -642,7 +718,7 @@ function gWa(){const c=gCalc();const L=['Здравствуйте! Хочу со
   c.picks.forEach(x=>L.push('• '+x.n+(x.art?' ('+x.art+')':'')+' — '+rub(x.p)));
   L.push('','Упаковка: '+c.w.n+(c.w.p?' — '+rub(c.w.p):''),'Лента: '+G.rib);
   if(G.card)L.push('Открытка: '+(G.note.trim()?'«'+G.note.trim()+'»':'да')+' — '+rub(CARD_P));
-  L.push('','Итого: '+rub(c.total));return `https://wa.me/${WA}?text=${encodeURIComponent(L.join('\n'))}`}
+  L.push('','Итого: '+rub(c.total));return `https://wa.me/${WA}?text=${encodeURIComponent(L.join('\n')+dlText())}`}
 function renderGift(){
   const c=gCalc();
   $('#gSteps').innerHTML=GSTEPS.map((n,i)=>{const k=i+1,cur=G.step===k;return `<button data-gstep="${k}" aria-current="${cur}" class="${k<G.step?'done':''}" ${gCan(k)?'':'disabled'}><i>${k}</i>${n}</button>`}).join('');
@@ -661,7 +737,7 @@ function renderGift(){
     RIBS.map(r=>`<button class="opt" data-grib="${r.n}" aria-pressed="${G.rib===r.n}"><span class="dot" style="background:${r.c}"></span><b style="font-family:Manrope,sans-serif;font-size:15px;font-weight:600">${r.n}</b></button>`).join('')+'</div>'+
     `<button class="opt row" data-gcard aria-pressed="${G.card}" style="width:100%"><span class="md" style="width:52px;height:52px"><svg viewBox="0 0 64 64" style="width:30px;height:30px">${IC.box}</svg></span><span style="flex:1;display:flex;flex-direction:column;gap:3px"><b style="font-family:Manrope,sans-serif;font-size:17px;font-weight:700">Добавить открытку</b><small>Подпишем от руки вашим текстом</small></span><span class="pr" style="margin-right:36px">${rub(CARD_P)}</span>${TICK}</button>`+
     (G.card?`<p class="h4">Текст открытки</p><textarea id="gNote" maxlength="200" placeholder="Например: Дорогой маме — с любовью!">${esc(G.note)}</textarea>`:'')}
-  else {h=`<div class="gDone"><span class="md"><svg viewBox="0 0 64 64">${IC.box}</svg></span><h2>Подарок собран!</h2><p>Отправьте заказ нам в WhatsApp — сообщение уже заполнено. Мы уточним наличие и время готовности.</p><a class="btn tq" style="text-decoration:none" target="_blank" rel="noopener" id="gSend" href="${gWa()}">Отправить заказ в WhatsApp</a><button class="linkBtn" data-greset>Собрать ещё один подарок</button></div>`}
+  else {h=`<div class="gDone"><span class="md"><svg viewBox="0 0 64 64">${IC.box}</svg></span><h2>Подарок собран!</h2><p>Выберите доставку и отправьте заказ нам в WhatsApp — сообщение уже заполнено. Мы уточним наличие и время готовности.</p><div style="width:100%;max-width:560px;text-align:left"><p class="h4">Доставка</p>${dlForm()}</div><a class="btn tq" style="text-decoration:none" target="_blank" rel="noopener" id="gSend" href="${gWa()}">Отправить заказ в WhatsApp</a><button class="linkBtn" data-greset>Собрать ещё один подарок</button></div>`}
   if(G.step<6)h+=`<div class="gNav">${G.step>1?'<button class="btn back" data-gback>Назад</button>':'<span></span>'}<button class="btn tq" data-gnext ${gValid(G.step)?'':'disabled'}>${G.step===5?'Готово':'Далее'}</button></div>`;
   else h+=`<div class="gNav"><button class="btn back" data-gback>Назад</button><span></span></div>`;
   $('#gMain').innerHTML=h;
@@ -669,7 +745,7 @@ function renderGift(){
     (c.picks.length?c.picks.map(x=>`<div class="r"><span style="opacity:1">${esc(x.n)}</span><b>${rub(x.p)}</b></div>`).join(''):'<span class="msg">Пока пусто — выберите товары на шаге 3</span>')+
     `<hr><div class="r"><span>${c.w.n}</span><b>${c.w.p?rub(c.w.p):'0 ₽'}</b></div><div class="r"><span>Лента</span><b>${G.rib}</b></div><div class="r"><span>Открытка</span><b>${G.card?rub(CARD_P):'нет'}</b></div><hr>`+
     `<div class="tot"><span style="font-weight:700">Итого</span><span class="price">${rub(c.total)}</span></div><div class="bar"><i class="${c.over?'over':''}" style="width:${c.max?Math.min(100,Math.round(c.total/c.max*100)):(c.b?100:0)}%"></i></div><span class="msg">${c.msg}</span>`+
-    (c.picks.length?`<a class="btn" target="_blank" rel="noopener" href="${gWa()}">Отправить в WhatsApp</a>`:'');
+    (c.picks.length&&G.step<6&&gCan(6)?`<button class="btn" data-gstep="6">Перейти к оформлению</button>`:'');
 }
 document.addEventListener('click',e=>{
   const t=e.target.closest('button');if(!t||!t.closest('#v-gift'))return;const d=t.dataset;
@@ -686,6 +762,7 @@ document.addEventListener('click',e=>{
   else return;
   renderGift();
 });
+document.addEventListener('click',e=>{if(e.target.closest('#gSend'))dlCheck(e)},true);
 document.addEventListener('input',e=>{if(e.target.id==='gNote'){G.note=e.target.value.slice(0,200);const a=document.querySelectorAll('#v-gift a[href^="https://wa.me"]');a.forEach(x=>x.href=gWa())}});
 
 function render(){badges();({home:renderHome,catalog:renderCatalog,favs:renderFavs,cart:renderCart,gift:renderGift})[S.view]()}
@@ -706,7 +783,7 @@ function openProduct(id){
 function toCatalog(){S.shown=PAGE;go('catalog')}
 document.addEventListener('click',e=>{
   const a=e.target.closest('#checkout');
-  if(a){a.href=waLink();setTimeout(()=>{S.cart=[];S.note='';save();badges();openSheet(`<div style="text-align:center;padding:10px 0 8px"><img src="${MARK_T}" alt="" style="width:84px;margin:6px auto 14px"><h3 class="disp" style="font-size:26px;margin:0 0 6px;color:var(--tq-ink)">Заказ передан в WhatsApp</h3><p style="color:var(--muted);margin:0 0 18px">Отправьте сообщение в открывшемся чате — мы ответим, уточним доставку и бережно упакуем подарок. Если чат не открылся, напишите нам: <a href="https://wa.me/${WA}" target="_blank" rel="noopener" style="color:var(--tq)">+7 930 090‑04‑04</a></p><button class="btn tq" data-go="home">На главную</button></div>`);renderCart()},400);return}
+  if(a){if(!dlCheck(e))return;a.href=waLink();setTimeout(()=>{S.cart=[];S.note='';save();badges();openSheet(`<div style="text-align:center;padding:10px 0 8px"><img src="${MARK_T}" alt="" style="width:84px;margin:6px auto 14px"><h3 class="disp" style="font-size:26px;margin:0 0 6px;color:var(--tq-ink)">Заказ передан в WhatsApp</h3><p style="color:var(--muted);margin:0 0 18px">Отправьте сообщение в открывшемся чате — мы ответим, уточним доставку и бережно упакуем подарок. Если чат не открылся, напишите нам: <a href="https://wa.me/${WA}" target="_blank" rel="noopener" style="color:var(--tq)">+7 930 090‑04‑04</a></p><button class="btn tq" data-go="home">На главную</button></div>`);renderCart()},400);return}
   const t=e.target.closest('button');if(!t)return;
   const d=t.dataset;
   if(d.go){closeSheet();d.go==='catalog'?toCatalog():go(d.go)}
